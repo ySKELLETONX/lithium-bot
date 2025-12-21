@@ -1,0 +1,16 @@
+using Discord;
+using Discord.WebSocket;
+using Lithium.Bot;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<DiscordSocketClient>(sp => new DiscordSocketClient(new DiscordSocketConfig
+{
+    GatewayIntents = GatewayIntents.AllUnprivileged
+}));
+
+builder.Services.AddHostedService<BotService>();
+
+var app = builder.Build();
+
+app.Run();
