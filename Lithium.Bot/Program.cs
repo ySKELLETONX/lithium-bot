@@ -4,7 +4,7 @@ using Lithium.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<DiscordSocketClient>(sp => new DiscordSocketClient(new DiscordSocketConfig
+builder.Services.AddSingleton<DiscordSocketClient>(_ => new DiscordSocketClient(new DiscordSocketConfig
 {
     GatewayIntents = GatewayIntents.AllUnprivileged
 }));
