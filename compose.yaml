@@ -1,0 +1,6 @@
+﻿services:
+  lithium.bot:
+    image: lithium.bot
+    build:
+      context: .
+      dockerfile: Lithium.Bot/Dockerfile
