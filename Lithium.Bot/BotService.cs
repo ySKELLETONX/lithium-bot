@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Discord;
 using Discord.WebSocket;
 
@@ -15,7 +16,10 @@ public sealed class BotService(
         client.Ready += OnReadyAsync;
         client.MessageReceived += OnMessageReceivedAsync;
 
-        await client.LoginAsync(TokenType.Bot, config["Discord:Token"]);
+        var token = config["Discord:Token"] 
+                    ?? Environment.GetEnvironmentVariable("DISCORD_TOKEN");
+        
+        await client.LoginAsync(TokenType.Bot, token);
         await client.StartAsync();
     }
 
