@@ -34,10 +34,10 @@ public sealed class BotService(
         return Task.CompletedTask;
     }
 
-    private Task OnReadyAsync()
+    private async Task OnReadyAsync()
     {
         logger.LogInformation($"{client.CurrentUser} connected!");
-        return Task.CompletedTask;
+        await client.SetActivityAsync(new Game("lithium.run", ActivityType.Watching));
     }
 
     private async Task OnMessageReceivedAsync(SocketMessage message)
