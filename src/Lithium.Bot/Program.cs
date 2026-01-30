@@ -3,16 +3,12 @@ using Discord.WebSocket;
 using Lithium.Bot.Services;
 using Lithium.Bot.Data;
 using Microsoft.EntityFrameworkCore;
+using Lithium.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
-
-if (string.IsNullOrEmpty(connectionString))
-{
-    throw new InvalidOperationException("The variable 'DB_CONNECTION' not found");
-}
+ArgumentException.ThrowIfNullOrEmpty(connectionString);
 
 builder.Services.AddDbContext<LithiumContext>(options =>
     options.UseNpgsql(connectionString));
@@ -22,6 +18,7 @@ builder.Services.AddSingleton<DiscordSocketClient>(_ => new DiscordSocketClient(
     GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers
 }));
 builder.Services.AddSingleton<IUserService, UserService>();
+builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddHostedService<BotService>();
 
