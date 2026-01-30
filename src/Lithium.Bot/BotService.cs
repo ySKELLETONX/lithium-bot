@@ -1,13 +1,7 @@
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Lithium.Bot.Data;
-using Lithium.Bot.Entities;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
 using Lithium.Bot.Services;
 
 namespace Lithium.Bot;
@@ -17,8 +11,8 @@ public sealed class BotService(
     IConfiguration config,
     IUserService userService,
     DiscordSocketClient client,
-    IServiceProvider services)
-    : IHostedService
+    IServiceProvider services
+) : IHostedService
 {
     private InteractionService _interactionService = null!;
 
@@ -31,6 +25,8 @@ public sealed class BotService(
     {
         try
         {
+            logger.LogInformation("Starting BotService...");
+
             _interactionService = new InteractionService(client.Rest);
 
             var token = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
@@ -47,6 +43,8 @@ public sealed class BotService(
 
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
+
+            logger.LogInformation("BotService started successfully!");
         }
         catch (Exception e)
         {
@@ -86,6 +84,14 @@ public sealed class BotService(
 
         try
         {
+            var debugGuildString = Environment.GetEnvironmentVariable("DEBUG_GUILD");
+
+            if (!string.IsNullOrEmpty(debugGuildString))
+            {
+                var debugGuildId = ulong.Parse(debugGuildString);
+                await _interactionService.RegisterCommandsToGuildAsync(debugGuildId);
+            }
+
             await _interactionService.RegisterCommandsGloballyAsync();
 
             _isInitialized = true;
@@ -109,7 +115,7 @@ public sealed class BotService(
         {
             logger.LogError(ex, "Error executing interaction.");
 
-            if (interaction.Type == InteractionType.ApplicationCommand)
+            if (interaction.Type is InteractionType.ApplicationCommand)
             {
                 // Ephemeral message to user (only visible to them)
                 await interaction.RespondAsync("An internal error occurred while processing your command.",
@@ -142,13 +148,13 @@ public sealed class BotService(
             };
 
             embed.WithThumbnailUrl(user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl());
-            
+
             embed.WithFooter(footer =>
             {
                 footer.Text = $"Member #{user.Guild.MemberCount}";
                 footer.IconUrl = user.Guild.IconUrl;
             });
-            
+
             await channel.SendMessageAsync(text: $"Welcome, {user.Mention}!", embed: embed.Build());
         }
     }
